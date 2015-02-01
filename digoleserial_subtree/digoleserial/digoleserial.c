@@ -107,7 +107,7 @@ digoleserial_lcdCharacter(uint8_t c) {
 }
 
 void ICACHE_FLASH_ATTR
-digoleserial_lcdNString(uint8_t *buf, uint16_t len){
+digoleserial_lcdPrintN(uint8_t *buf, uint16_t len){
   uint16 i;
   uart1_tx_string("TT");
   for (i = 0; i < len; i++) {
@@ -148,8 +148,8 @@ digoleserial_gotoXY(uint8_t x, uint8_t y){
 }
 
 void ICACHE_FLASH_ATTR
-digoleserial_lcdString(uint8_t *buf) {
-  digoleserial_lcdNString(buf, strlen(buf));
+digoleserial_lcdPrint(uint8_t *buf) {
+  digoleserial_lcdPrintN(buf, strlen(buf));
 }
 
 void ICACHE_FLASH_ATTR
@@ -183,11 +183,11 @@ void ICACHE_FLASH_ATTR
 digoleserial_setBaud(void){
   if (false) { // setBaud does NOT work!!!
 
-    //digoleserial_lcdNString("Switching to 115200", 18);
+    //digoleserial_lcdPrintN("Switching to 115200", 18);
     os_printf("\n#Switching to 115200 on uart1#\n");
     //uart1_tx_one_char(0x00);
-    digoleserial_lcdNString("", 0); //Sync up
-    digoleserial_lcdNString("", 0); //Sync up
+    digoleserial_lcdPrintN("", 0); //Sync up
+    digoleserial_lcdPrintN("", 0); //Sync up
     //digoleserial_lcdClear();
     uart1_tx_string("SB5115200\n");
     uart1_tx_one_char(0x0D);
@@ -198,7 +198,7 @@ digoleserial_setBaud(void){
     UartDev.data_bits = EIGHT_BITS;
     digoleserial_uart1_config();
     os_delay_us(20000);
-    digoleserial_lcdNString("Switched to 115200", 18);
+    digoleserial_lcdPrintN("Switched to 115200", 18);
     os_printf("\n#Switched to 115200 on uart1#\n");
   }
 }
@@ -212,8 +212,8 @@ digoleserial_init(uint8_t col, uint8_t row) {
   digoleserial_setBaud();
   digoleserial_lcdClear();
 
-  //digoleserial_lcdNString("", 0); //Sync up
-  //digoleserial_lcdNString("", 0); //Sync up
+  //digoleserial_lcdPrintN("", 0); //Sync up
+  //digoleserial_lcdPrintN("", 0); //Sync up
 
   // Sometimes, or rather often actually, the initial sync is problematic
   digoleserial_lcdClear();
@@ -234,6 +234,6 @@ digoleserial_init(uint8_t col, uint8_t row) {
   digoleserial_lcdClear();
   digoleserial_enableCursor(false);
   os_delay_us(10000);
-  digoleserial_lcdString("Screen initiated");
+  digoleserial_lcdPrint("Screen initiated");
 }
 

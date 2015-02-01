@@ -153,7 +153,7 @@ bigint_print1Digit(uint8_t xPos, uint16_t number){
   uint8_t i = 0;
   for (i=0; i<3; i++){
     digoleserial_gotoXY(xPos,i);
-    digoleserial_lcdNString("",0);
+    digoleserial_lcdPrintN("",0);
     bigint_printDigit(xPos+4, number10e0, i);
   }
 }
@@ -165,7 +165,7 @@ bigint_print2Digits(uint8_t xPos, uint16_t number){
   uint8_t i = 0;
   for (i=0; i<3; i++){
     digoleserial_gotoXY(xPos,i);
-    digoleserial_lcdNString("",0); // required to make the gotoXY work
+    digoleserial_lcdPrintN("",0); // required to make the gotoXY work
     bigint_printDigit(xPos, number10e1, i);
     digoleserial_writeCustomChars(" ",1);
     bigint_printDigit(xPos+4, number10e0, i);
@@ -183,7 +183,7 @@ bigint_print3Digits(uint8_t xPos, uint16_t number){
   //uint8_t buffer[] = " ";
   for (i=0; i<3; i++){
     digoleserial_gotoXY(xPos,i);
-    digoleserial_lcdNString("",0); // required to make the gotoXY work
+    digoleserial_lcdPrintN("",0); // required to make the gotoXY work
     bigint_printDigit(xPos+0, number10e2, i);
     digoleserial_writeCustomChars(" ",1);
     bigint_printDigit(xPos+4, number10e1, i);
@@ -204,7 +204,7 @@ bigint_print4Digits(uint8_t xPos, uint16_t number){
   uint8_t i = 0;
   for (i=0; i<3; i++){
     digoleserial_gotoXY(xPos,i);
-    digoleserial_lcdNString("",0); // required to make the gotoXY work
+    digoleserial_lcdPrintN("",0); // required to make the gotoXY work
     bigint_printDigit(xPos+0,  number10e3, i);
     digoleserial_writeCustomChars(" ",1);
     bigint_printDigit(xPos+4,  number10e2, i);
@@ -228,7 +228,7 @@ bigint_print5Digits(uint8_t xPos, uint32_t number) {
   uint8_t i = 0;
   for (i=0; i<3; i++){
     digoleserial_gotoXY(xPos,i);
-    digoleserial_lcdNString("",0); // required to make the gotoXY work
+    digoleserial_lcdPrintN("",0); // required to make the gotoXY work
     bigint_printDigit(xPos+0,  number10e4, i);
     digoleserial_writeCustomChars(" ",1);
     bigint_printDigit(xPos+4,  number10e3, i);

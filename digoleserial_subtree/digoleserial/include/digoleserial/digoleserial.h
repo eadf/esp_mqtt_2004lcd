@@ -53,12 +53,12 @@ void digoleserial_setBaud(void);
 /**
  * Writes an optionally null terminated string
  */
-void digoleserial_lcdNString(uint8_t *buf, uint16_t len);
+void digoleserial_lcdPrintN(uint8_t *buf, uint16_t len);
 
 /**
  * Writes a null terminated string
  */
-void digoleserial_lcdString(uint8_t *characters);
+void digoleserial_lcdPrint(uint8_t *characters);
 
 /**
  * Writes all of the characters in the buffer - including 0x0
