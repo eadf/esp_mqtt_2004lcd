@@ -44,8 +44,12 @@ static volatile os_timer_t loop_timer;
 
 MQTT_Client mqttClient;
 static char clientid[66];
-static char buffer[] = "                                        ";
-
+static char buffer[]   = "                    ";
+static char topic0[]   = "                    ";
+static char topic1[]   = "                    ";
+static char topic2[]   = "                    ";
+static char topic3[]   = "                    ";
+static char topicclr[] = "                    ";
 
 static void loop0(void);
 static void loop(void);
@@ -86,12 +90,21 @@ mqttConnectedCb(uint32_t *args) {
   MQTT_Client* client = (MQTT_Client*) args;
   INFO("MQTT: Connected! will use %s as MQTT topic \n", clientid);
 
-  MQTT_Subscribe(client, clientid, 0);
   MQTT_Subscribe(client, "/lcd0", 0);
   MQTT_Subscribe(client, "/lcd1", 0);
   MQTT_Subscribe(client, "/lcd2", 0);
   MQTT_Subscribe(client, "/lcd3", 0);
   MQTT_Subscribe(client, "/lcd/clearscreen", 0);
+  os_sprintf(topic0, "%s%s", clientid, "/lcd0");
+  MQTT_Subscribe(client, topic0, 0);
+  os_sprintf(topic1, "%s%s", clientid, "/lcd1");
+  MQTT_Subscribe(client, topic1, 0);
+  os_sprintf(topic2, "%s%s", clientid, "/lcd2");
+  MQTT_Subscribe(client, topic2, 0);
+  os_sprintf(topic3, "%s%s", clientid, "/lcd3");
+  MQTT_Subscribe(client, topic3, 0);
+  os_sprintf(topicclr, "%s%s", clientid, "/clearscreen");
+  MQTT_Subscribe(client, topicclr, 0);
 }
 
 void ICACHE_FLASH_ATTR
@@ -109,8 +122,6 @@ mqttPublishedCb(uint32_t *args) {
 void ICACHE_FLASH_ATTR
 mqttDataCb(uint32_t *args, const char* topic, uint32_t topic_len, const char *data, uint32_t data_len) {
 
-  static int lastMessageLength = 0;
-
   char *topicBuf = (char*) os_zalloc(topic_len + 1), *dataBuf =
       (char*) os_zalloc(data_len + 1);
 
@@ -123,32 +134,20 @@ mqttDataCb(uint32_t *args, const char* topic, uint32_t topic_len, const char *da
   dataBuf[data_len] = 0;
 
   INFO("Received topic: %s, data: %s \n", topicBuf, dataBuf);
-  if (strcmp(topicBuf, "/lcd0") == 0) {
+  if (strcmp(topicBuf, "/lcd0") == 0 || strcmp(topicBuf, topic0) == 0) {
     digoleserial_gotoXY(0,0);
-    digoleserial_lcdPrint(dataBuf);
-  } else if (strcmp(topicBuf, "/lcd1") == 0) {
+    digoleserial_lcdPrintN(dataBuf, data_len>20?20:data_len);
+  } else if (strcmp(topicBuf, "/lcd1") == 0 || strcmp(topicBuf, topic1) == 0 ) {
     digoleserial_gotoXY(0,1);
-    digoleserial_lcdPrint(dataBuf);
-  } else if (strcmp(topicBuf, "/lcd2") == 0) {
+    digoleserial_lcdPrintN(dataBuf, data_len>20?20:data_len);
+  } else if (strcmp(topicBuf, "/lcd2") == 0 || strcmp(topicBuf, topic2) == 0) {
     digoleserial_gotoXY(0,2);
-    digoleserial_lcdPrint(dataBuf);
-  } else if (strcmp(topicBuf, "/lcd3") == 0) {
+    digoleserial_lcdPrintN(dataBuf, data_len>20?20:data_len);
+  } else if (strcmp(topicBuf, "/lcd3") == 0 || strcmp(topicBuf, topic3) == 0) {
     digoleserial_gotoXY(0,3);
-    digoleserial_lcdPrint(dataBuf);
-  } else if (strcmp(topicBuf, "/lcd/clearscreen") == 0) {
+    digoleserial_lcdPrintN(dataBuf, data_len>20?20:data_len);
+  } else if (strcmp(topicBuf, "/lcd/clearscreen") == 0 || strcmp(topicBuf, topicclr) == 0) {
     digoleserial_lcdClear();
-  } else {
-    if (data_len<=lastMessageLength){
-      int i=data_len;
-      // overwrite last message
-      digoleserial_gotoXY(data_len*7,3);
-      for (; i<=lastMessageLength; i++) {
-        digoleserial_lcdCharacter(' ');
-      }
-    }
-    digoleserial_gotoXY(0,3);
-    digoleserial_lcdPrint(dataBuf);
-    lastMessageLength = data_len<12?data_len+1:data_len;
   }
   os_free(topicBuf);
   os_free(dataBuf);
@@ -160,16 +159,31 @@ mqttDataCb(uint32_t *args, const char* topic, uint32_t topic_len, const char *da
 static void ICACHE_FLASH_ATTR
 loop0(void) {
   static uint8_t iterations = 0;
-  if (iterations<=5 ) {
+  if (iterations<=4 ) {
     digoleserial_lcdClear();
     digoleserial_gotoXY(0,0);
-    digoleserial_lcdString("Digole serial driver");
+    digoleserial_lcdPrint("Digole serial driver");
     digoleserial_gotoXY(4,1);
-    digoleserial_lcdString("for esp8266");
+    digoleserial_lcdPrint("for esp8266");
     digoleserial_gotoXY(2,2);
-    digoleserial_lcdString("github.com/eadf/  ");
+    digoleserial_lcdPrint("github.com/eadf/  ");
     digoleserial_gotoXY(0,3);
-    digoleserial_lcdString("esp8266_digoleserial");
+    digoleserial_lcdPrint("esp8266_digoleserial");
+
+    // restart loop0 timer
+    os_timer_disarm(&loop_timer);
+    os_timer_setfn(&loop_timer, (os_timer_func_t *) loop0, NULL);
+    os_timer_arm(&loop_timer, 1000, 0);
+  } else if (iterations<=8 ) {
+    digoleserial_lcdClear();
+    digoleserial_gotoXY(0,0);
+    digoleserial_lcdPrint("   Wireless MQTT    ");
+    digoleserial_gotoXY(0,1);
+    digoleserial_lcdPrint("    for esp8266     ");
+    digoleserial_gotoXY(0,2);
+    digoleserial_lcdPrint(" github.com/tuanpmt ");
+    digoleserial_gotoXY(0,3);
+    digoleserial_lcdPrint("    /esp_mqtt       ");
 
     // restart loop0 timer
     os_timer_disarm(&loop_timer);
@@ -178,6 +192,19 @@ loop0(void) {
   } else {
     digoleserial_lcdClear();
     loop();
+    digoleserial_gotoXY(0,0);
+    digoleserial_lcdPrint(clientid);
+    digoleserial_lcdPrint("/lcd0");
+    digoleserial_gotoXY(0,1);
+    digoleserial_lcdPrint(clientid);
+    digoleserial_lcdPrint("/lcd1");
+    digoleserial_gotoXY(0,2);
+    digoleserial_lcdPrint(clientid);
+    digoleserial_lcdPrint("/lcd2");
+    digoleserial_gotoXY(0,3);
+    digoleserial_lcdPrint(clientid);
+    digoleserial_lcdPrint("/lcd3");
+
     // Start loop timer, repeating this time
     os_timer_disarm(&loop_timer);
     os_timer_setfn(&loop_timer, (os_timer_func_t *) loop, NULL);
@@ -196,7 +223,7 @@ loop(void) {
   // toggle the heartbeat symbol
   digoleserial_gotoXY(19,3);
   os_sprintf(buffer,"%c",iterations&1?0b10100001:0b11011111);
-  digoleserial_lcdString(buffer);
+  digoleserial_lcdPrint(buffer);
   iterations += 1;
 }
 
