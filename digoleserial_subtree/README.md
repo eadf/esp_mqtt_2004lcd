@@ -5,7 +5,7 @@ The adapter requires only one pin so it is possible to run this on an ESP-1.
 This digole serial driver uses UART1, so it can only be attached to GPIO2.
 ![](doc/digole.png)
 
-As a demonstraton *user_main.c* runs a tachometer that displays the rpm on a 4*20 LCD with big digits (no WiFi).
+As a demonstraton *user_main.c* runs a tachometer that displays the frequency and rpm of GPIO0 on a 4*20 LCD with big digits. I intend to use this very close to a [VFD](http://en.wikipedia.org/wiki/Variable-frequency_drive) and stepping motors so WiFi is totally out of the question.
 
 ![](doc/20x4_lcd.png)
 
@@ -46,4 +46,6 @@ The rest is GPL v3+
 
 ##Required:
 
-esp_iot_sdk_v0.9.4_14_12_19 ( v0.9.5 breaks everything ) 
+esp_iot_sdk_v0.9.4_14_12_19
+
+I've successfully tested this with sdk v0.9.5 (linux makefile).

@@ -85,7 +85,7 @@ setup(void) {
   // Start loop timer
   os_timer_disarm(&loop_timer);
   os_timer_setfn(&loop_timer, (os_timer_func_t *) loop0, NULL);
-  os_timer_arm(&loop_timer, 1000, 0);
+  os_timer_arm(&loop_timer, 1000, false);
 }
 
 //Do nothing function
@@ -97,10 +97,16 @@ nop_procTask(os_event_t *events) {
 //Init function 
 void ICACHE_FLASH_ATTR
 user_init(void) {
+
+  // Make uart0 work with just the TX pin. Baud:115200,n,8,1
+  // The RX pin is no free for GPIO use.
   stdoutInit();
 
   //Set station mode
-  wifi_set_opmode( NULL_MODE );
+  //wifi_set_opmode(NULL_MODE); // NULL_MODE will crash the system under 0.9.5. It works with 0.9.4.
+
+  //if you flash your device with code that sets NULL_MODE it will remain in the system
+  //until you flash the device with code that actively sets opmode to something useful.
 
   // Start setup timer
   os_timer_disarm(&loop_timer);
