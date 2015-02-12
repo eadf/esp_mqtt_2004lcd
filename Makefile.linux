@@ -20,7 +20,7 @@ ESPPORT		?= /dev/ttyUSB0
 TARGET		= app
 
 # which modules (subdirectories) of the project to include in compiling
-MODULES        = driver digoleserial_subtree/digoleserial digoleserial_subtree/easygpio esp_mqtt_subtree/mqtt user
+MODULES        = driver digoleserial/digoleserial digoleserial/easygpio mqtt/mqtt user
 EXTRA_INCDIR    = include $(SDK_BASE)/../include
 
 # libraries used in this project, mainly provided by the SDK
