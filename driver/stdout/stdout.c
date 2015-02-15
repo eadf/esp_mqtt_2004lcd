@@ -8,10 +8,10 @@
  * and you think this stuff is worth it, you can buy me a beer in return. 
  * ----------------------------------------------------------------------------
  */
-#include "driver/stdout.h"
+#include "stdout/stdout.h"
 #include "ets_sys.h"
 #include "osapi.h"
-#include "driver/uart_hw.h"
+#include "stdout/uart_hw.h"
 
 static void ICACHE_FLASH_ATTR stdoutUartTxd(char c) {
 	//Wait until there is room in the FIFO
@@ -27,7 +27,8 @@ static void ICACHE_FLASH_ATTR stdoutPutchar(char c) {
 }
 
 
-void stdoutInit() {
+void ICACHE_FLASH_ATTR
+stdout_init() {
 	//Enable TxD pin
 	PIN_PULLUP_DIS(PERIPHS_IO_MUX_U0TXD_U);
 	PIN_FUNC_SELECT(PERIPHS_IO_MUX_U0TXD_U, FUNC_U0TXD);
