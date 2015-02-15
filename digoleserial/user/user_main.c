@@ -7,7 +7,7 @@
 #include "digoleserial/digoleserial.h"
 #include "bigint/bigint.h"
 #include "tachometer/tachometer.h"
-#include "driver/stdout.h"
+#include "stdout/stdout.h"
 
 #define user_procTaskPrio        0
 #define user_procTaskQueueLen    1
@@ -98,11 +98,12 @@ nop_procTask(os_event_t *events) {
 void ICACHE_FLASH_ATTR
 user_init(void) {
   // Make uart0 work with just the TX pin. Baud:115200,n,8,1
-  // The RX pin is now free for GPIO use.
-  stdoutInit();
+  // The RX pin is no free for GPIO use.
+  stdout_init();
 
-  //Set station mode
-  //wifi_set_opmode(NULL_MODE); // NULL_MODE will crash the system under 0.9.5. It works with 0.9.4.
+  // turn off WiFi for this console only demo
+  wifi_station_set_auto_connect(false);
+  wifi_station_disconnect();
 
   //if you flash your device with code that sets NULL_MODE it will remain in the system
   //until you flash the device with code that actively sets opmode to something useful.
