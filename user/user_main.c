@@ -35,7 +35,7 @@
 #include "debug.h"
 #include "gpio.h"
 #include "user_interface.h"
-#include "driver/stdout.h"
+#include "stdout/stdout.h"
 #include "mem.h"
 #include "digoleserial/digoleserial.h"
 
@@ -263,8 +263,9 @@ setup(void) {
 void ICACHE_FLASH_ATTR
 user_init(void) {
 
-  // Make os_printf working again. Baud:115200,n,8,1
-  stdoutInit();
+  // Make uart0 work with just the TX pin. Baud:115200,n,8,1
+  // The RX pin is now free for GPIO use.
+  stdout_init();
 
   // Run setup() 2 seconds from now
   os_timer_disarm(&loop_timer);
