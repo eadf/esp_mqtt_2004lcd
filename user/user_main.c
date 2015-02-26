@@ -55,30 +55,12 @@ static void loop0(void);
 static void loop(void);
 static void setup(void);
 
-/**
- * from http://en.wikipedia.org/wiki/Adler-32
- */
-uint32_t ICACHE_FLASH_ATTR
-adler32(const void *buf, size_t buflength) {
-  const uint8_t *buffer = (const uint8_t*)buf;
-
-  uint32_t s1 = 1;
-  uint32_t s2 = 0;
-  size_t n = 0;
-  for (; n < buflength; n++) {
-    s1 = (s1 + buffer[n]) % 65521;
-    s2 = (s2 + s1) % 65521;
-  }
-  return (s2 << 16) | s1;
-}
-
 void ICACHE_FLASH_ATTR
 wifiConnectCb(uint8_t status) {
-  char hwaddr[6];
-  wifi_get_macaddr(0, hwaddr);
-  // Use a adler32 hash method to create a unique:ish
-  // topic name that will fit on the screen
-  os_sprintf(clientid, "/%0x", adler32(hwaddr, 6));
+
+  // Use the hex encoded system_get_chip_id() value as
+  // an unique topic (that still fits on the screen)
+  os_sprintf(clientid, "/%0x", system_get_chip_id());
 
   if (status == STATION_GOT_IP) {
     MQTT_Connect(&mqttClient);
@@ -105,18 +87,6 @@ mqttConnectedCb(uint32_t *args) {
   MQTT_Subscribe(client, topic3, 0);
   os_sprintf(topicclr, "%s%s", clientid, "/clearscreen");
   MQTT_Subscribe(client, topicclr, 0);
-}
-
-void ICACHE_FLASH_ATTR
-mqttDisconnectedCb(uint32_t *args) {
-  MQTT_Client* client = (MQTT_Client*) args;
-  INFO("MQTT: Disconnected\n");
-}
-
-void ICACHE_FLASH_ATTR
-mqttPublishedCb(uint32_t *args) {
-  MQTT_Client* client = (MQTT_Client*) args;
-  INFO("MQTT: Published\n");
 }
 
 void ICACHE_FLASH_ATTR
@@ -237,15 +207,10 @@ setup(void) {
   CFG_Load();
 
   MQTT_InitConnection(&mqttClient, sysCfg.mqtt_host, sysCfg.mqtt_port, sysCfg.security);
-  //MQTT_InitConnection(&mqttClient, "192.168.11.122", 1880, 0);
-
   MQTT_InitClient(&mqttClient, sysCfg.device_id, sysCfg.mqtt_user, sysCfg.mqtt_pass, sysCfg.mqtt_keepalive, 1);
-  //MQTT_InitClient(&mqttClient, "client_id", "user", "pass", 120, 1);
 
   MQTT_InitLWT(&mqttClient, "/lwt", "offline", 0, 0);
   MQTT_OnConnected(&mqttClient, mqttConnectedCb);
-  MQTT_OnDisconnected(&mqttClient, mqttDisconnectedCb);
-  MQTT_OnPublished(&mqttClient, mqttPublishedCb);
   MQTT_OnData(&mqttClient, mqttDataCb);
 
   WIFI_Connect(sysCfg.sta_ssid, sysCfg.sta_pwd, wifiConnectCb);
