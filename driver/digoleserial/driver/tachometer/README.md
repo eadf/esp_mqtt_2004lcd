@@ -18,3 +18,8 @@ Returns the frequency from the last timer period:
 ###Example
 
 See [esp8266_digoleserial demo.](https://github.com/eadf/esp8266_digoleserial)
+
+
+###Todo
+* remove hardcoded timer period
+* Implementation uses global static data so there can only be on call to ```tachometer_init()```
