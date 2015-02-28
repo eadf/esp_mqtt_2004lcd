@@ -12,8 +12,6 @@
 #include "easygpio/easygpio.h"
 #include "os_type.h"
 
-#define tachometer_micros (0x7FFFFFFF & system_get_time())
-
 #define TACHOMETER_POLL_TIME 500 // 500ms
 
 static volatile uint32_t   tachometer_timeStamp = 0;
@@ -25,7 +23,7 @@ static uint8_t tachometer_pin = 0;
 // forward declarations
 static void tachometer_disableInterrupt(void);
 static void tachometer_enableInterrupt(void);
-static void tachometer_intr_handler(void);
+static void tachometer_intr_handler(int8_t key);
 static void tachometer_timerFunc(void);
 
 static void
@@ -39,7 +37,7 @@ tachometer_enableInterrupt(void) {
 }
 
 static void
-tachometer_intr_handler(void) {
+tachometer_intr_handler(int8_t key) {
   uint32_t gpio_status = GPIO_REG_READ(GPIO_STATUS_ADDRESS);
   //clear interrupt status
   GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, gpio_status & BIT(tachometer_pin));
@@ -57,18 +55,18 @@ tachometer_timerFunc(void) {
 
   // save the state as 'atomic' as possible
   //tachometer_disableInterrupt();
-  uint32_t now = tachometer_micros;
+  uint32_t now = system_get_time();
   uint32_t prevTimeStamp = tachometer_timeStamp;
   uint32_t pulses = tachometer_pulses;
   tachometer_timeStamp = now;
   tachometer_pulses = 0;
   //tachometer_enableInterrupt();
 
-  int32 period =  now - prevTimeStamp;
+  int32 period = now - prevTimeStamp;
   bool aBit = GPIO_INPUT_GET(tachometer_pin);
   if (period>0){
     tachometer_sample = (1000000.0*(float)pulses)/(float)period;
-    if (counter%3 == 0) {
+    if (false && (counter%3 == 0)) {
       // print this every 4:th iteration
       os_printf("Tachometer: pulses: %d period:%d us ", pulses, period);
       os_printf("pinValue:%c tachometer_sample=%d\n",aBit?'1':'0', tachometer_sample);
